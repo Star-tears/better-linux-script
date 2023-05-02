@@ -3,11 +3,9 @@
   <p align="center">快速配置 linux基础服务(apt更新、安装面板、设置SWAP等)</p>
 </p>
 
-
 <p align="center">
 简体中文 | <a href="./README_EN.md">English</a>
 </p>
-
 
 ------------------------------
 
@@ -30,6 +28,8 @@
 
 ## 使用方法
 
+> tips：推荐在root用户下执行
+
 ### 命令行
 
 ```shell
@@ -45,11 +45,11 @@ Examples:
 
 下载`better_linux.sh`脚本，使用`bash better_linux.sh -o`来使用选项式安装，可通过gui来选择需要进行的配置。
 
-> tips：推荐在root用户下执行
-
 ### 一键脚本
 
-to be continue...
+```shell
+curl -sSL -o better_linux.sh https://raw.githubusercontent.com/Star-tears/better-linux-script/master/better_linux.sh && bash better_linux.sh -oc
+```
 
 ## 说明
 
