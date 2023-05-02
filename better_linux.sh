@@ -14,6 +14,7 @@ OPTIONAL_FLAG=0
 FORCE_FLAG=0
 CLEAR_FLAG=0
 
+SOURCE_CHANGE=0
 APT_UPDATE=1
 BASIC_INSTALL=1
 INSTALL_ZSH=1
@@ -108,6 +109,7 @@ log "---------------------------------------------------"
 }
 
 optional_init(){
+    SOURCE_CHANGE=0
     APT_UPDATE=0
     BASIC_INSTALL=0
     INSTALL_ZSH=0
@@ -118,7 +120,8 @@ optional_init(){
 
 optional_dialog(){   
 local seleceted=$(whiptail --title "Checklist Dialog" --checklist \
-"Choose preferred Linux install or set" 15 60 6 \
+"Choose preferred Linux install or set" 15 60 7 \
+"source" "change source easily" OFF \
 "apt" "apt update && apt upgrade" ON \
 "basic" "basic install,such as curl, wget, git, vim" ON \
 "zsh" "install zsh and oh-my-zsh" ON \
@@ -134,6 +137,9 @@ else
     for key in $seleceted
     do
         case "${key:1:-1}" in
+            source)
+                SOURCE_CHANGE=1
+                ;;
             apt)
                 APT_UPDATE=1
                 ;;
@@ -178,6 +184,12 @@ pre_check(){
     else
         log_success "Now is root"
     fi
+}
+
+source_change(){
+    log "source change start..."
+    bash <(curl -sSL https://gitee.com/SuperManito/LinuxMirrors/raw/main/ChangeMirrors.sh)
+    log "source change finished."
 }
 
 apt_update()
@@ -287,6 +299,9 @@ optional_handler(){
 }
 
 install_handler(){
+    if [[ $SOURCE_CHANGE -eq 1 ]]; then
+        source_change
+    fi
     if [ $APT_UPDATE -eq 1 ]; then
         apt_update
     fi
@@ -305,7 +320,6 @@ install_handler(){
     if [[ $SET_SWAP -eq 1 ]]; then
         swap_set
     fi
-    # !todo
 }
 
 end_handler(){
