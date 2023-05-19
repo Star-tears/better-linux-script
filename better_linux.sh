@@ -266,7 +266,7 @@ swap_set(){
 pre_handler(){
     print_logo
     pre_check
-    read -n 1 -p "Would you like to continue, yes or no? (y/n) " ans;
+    read -p "Would you like to continue, yes or no? (y/n) " ans;
     if [[ ! -n $ans ]]
     then
         log "yes"
