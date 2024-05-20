@@ -2,11 +2,11 @@
 # set -x # 调试
 
 ################ Version Info ##################
-# Create Date: 2023-04-25                      #
+# Create Date: 2024-05-20                      #
 # Author:      Star-tears                      #
-# Mail:        startears1006@gmail.com         #
+# Mail:        star-tears@outlook.com          #
 # Blog:        https://blog.star-tears.cn      #
-# Version:     0.1.0                           #
+# Version:     0.2.0                           #
 # Attention:   linux init script               #
 ################################################
 
@@ -18,6 +18,8 @@ SOURCE_CHANGE=0
 APT_UPDATE=1
 BASIC_INSTALL=1
 INSTALL_ZSH=1
+INSTALL_ZSH_BASIC_PLUGIN=1
+INSTALL_P10K=0
 OMZ_SET=0
 INSTALL_1PANEL=0
 SET_SWAP=0
@@ -103,7 +105,7 @@ log "   __       __  __            __   _               "
 log "  / /  ___ / /_/ /____ ____  / /  (_)__  __ ____ __"
 log " / _ \/ -_) __/ __/ -_) __/ / /__/ / _ \/ // /\ \ /"
 log "/_.__/\__/\__/\__/\__/_/   /____/_/_//_/\_,_//_\_\ "
-log "                 author: Star-tears version: 0.1.0 "
+log "                 author: Star-tears version: 0.2.0 "
 log "                  blog: https://blog.star-tears.cn "
 log "---------------------------------------------------"
 }
@@ -113,6 +115,8 @@ optional_init(){
     APT_UPDATE=0
     BASIC_INSTALL=0
     INSTALL_ZSH=0
+    INSTALL_ZSH_BASIC_PLUGIN=0
+    INSTALL_P10K=0
     OMZ_SET=0
     INSTALL_1PANEL=0
     SET_SWAP=0
@@ -120,12 +124,14 @@ optional_init(){
 
 optional_dialog(){   
 local seleceted=$(whiptail --title "Checklist Dialog" --checklist \
-"Choose preferred Linux install or set" 15 60 7 \
+"Choose preferred Linux install or set" 20 100 10 \
 "source" "change source easily" OFF \
 "apt" "apt update && apt upgrade" ON \
 "basic" "basic install,such as curl, wget, git, vim" ON \
-"zsh" "install zsh and oh-my-zsh" ON \
-"omz" "oh-my-zsh theme and plugin set" OFF \
+"zsh" "install zsh" ON \
+"zsh-basic-plugin" "zsh-autosuggestions, zsh-syntax-highlighting, zsh-autocomplete" ON \
+"p10k" "you can chooss p10k or oh-my-zsh" ON \
+"omz" "install oh-my-zsh, oh-my-zsh theme and plugin set" OFF \
 "1panel" "install 1panel which is open source panel" OFF \
 "swap" "set swap memory" OFF 3>&1 1>&2 2>&3)
 
@@ -148,6 +154,12 @@ else
                 ;;
             zsh)
                 INSTALL_ZSH=1
+                ;;
+            zsh-basic-plugin)
+                INSTALL_ZSH_BASIC_PLUGIN=1
+                ;;
+            p10k)
+                INSTALL_P10K=1
                 ;;
             omz)
                 OMZ_SET=1
@@ -231,13 +243,32 @@ zsh_install(){
         chsh -s /bin/zsh
         log "zsh install finished."
     fi
+}
+
+zsh_basic_plugin_install(){
+    log "zsh_basic_plugin_install start..."
+    git clone --depth 1 -- https://github.com/zsh-users/zsh-autosuggestions ~/.zsh/zsh-autosuggestions
+    git clone --depth 1 -- https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.zsh/zsh-syntax-highlighting
+    git clone --depth 1 -- https://github.com/marlonrichert/zsh-autocomplete.git ~/.zsh/zsh-autocomplete
+    echo "source ${ZDOTDIR:-$HOME}/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh" >> ${ZDOTDIR:-$HOME}/.zshrc
+    echo "source ${ZDOTDIR:-$HOME}/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> ${ZDOTDIR:-$HOME}/.zshrc
+    echo "source ${ZDOTDIR:-$HOME}/.zsh/zsh-autocomplete/zsh-autocomplete.plugin.zsh" >> ${ZDOTDIR:-$HOME}/.zshrc
+    log_success "zsh_basic_plugin_install finished."
+    log_success "you can reload terminal or use \`source ~/.zshrc\` refresh zsh config."
+}
+
+p10k_install(){
+    log "p10k_install start..."
+    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
+    echo 'source ${ZDOTDIR:-$HOME}/powerlevel10k/powerlevel10k.zsh-theme' >> ${ZDOTDIR:-$HOME}/.zshrc
+    log_success "p10k_install finished."
+}
+
+omz_set(){
     log "omz install start..."
     log_success "After omz install, please run better_linux.sh again to continue other install."
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
     log "omz install finished."
-}
-
-omz_set(){
     log "omz settings start..."
     git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
     git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
@@ -310,6 +341,12 @@ install_handler(){
     fi
     if [ $INSTALL_ZSH -eq 1 ]; then
         zsh_install
+    fi
+    if [ $INSTALL_ZSH_BASIC_PLUGIN -eq 1 ]; then
+        zsh_basic_plugin_install
+    fi
+    if [ $INSTALL_P10K -eq 1 ]; then
+        p10k_install
     fi
     if [ $OMZ_SET -eq 1 ]; then
         omz_set
