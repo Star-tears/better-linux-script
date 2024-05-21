@@ -6,7 +6,7 @@
 # Author:      Star-tears                      #
 # Mail:        star-tears@outlook.com          #
 # Blog:        https://blog.star-tears.cn      #
-# Version:     0.3.0                           #
+# Version:     0.3.1                           #
 # Attention:   linux init script               #
 ################################################
 
@@ -131,7 +131,7 @@ log "   __       __  __            __   _               "
 log "  / /  ___ / /_/ /____ ____  / /  (_)__  __ ____ __"
 log " / _ \/ -_) __/ __/ -_) __/ / /__/ / _ \/ // /\ \ /"
 log "/_.__/\__/\__/\__/\__/_/   /____/_/_//_/\_,_//_\_\ "
-log "                 author: Star-tears version: 0.3.0 "
+log "                 author: Star-tears version: 0.3.1 "
 log "                  blog: https://blog.star-tears.cn "
 log "---------------------------------------------------"
 }
@@ -309,12 +309,9 @@ omz_set(){
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
     log "omz install finished."
     log "omz settings start..."
-    git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
     
     local zshrc=~/.zshrc
     sed -Ei 's/(^ZSH_THEME=)(.*)/\1"bira"/' $zshrc
-    sed -Ei.bak ':a;N;$!ba;s/plugins=\(([^)]*)\)/plugins=(zsh-syntax-highlighting zsh-autosuggestions)/g' $zshrc
 
     log "omz settings finished."
     log_success "you can reload terminal or use \`source ~/.zshrc\` refresh zsh config."
