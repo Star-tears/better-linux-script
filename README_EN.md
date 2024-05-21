@@ -44,12 +44,12 @@ Examples:
     bash better_linux.sh -o
 ```
 
-Download the better_linux.sh script and use bash better_linux.sh -o to perform an option-based installation, which can be selected through a GUI.
+Download the `better_linux.sh` script and use `bash better_linux.sh` to install, which can be selected through a GUI.
 
 ### One-Click Script
 
 ```shell
-curl -sSL -o better_linux.sh https://raw.githubusercontent.com/Star-tears/better-linux-script/master/better_linux.sh && bash better_linux.sh -oc
+curl -sSL -o better_linux.sh https://raw.githubusercontent.com/Star-tears/better-linux-script/master/better_linux.sh && bash better_linux.sh -c
 ```
 
 ## Description

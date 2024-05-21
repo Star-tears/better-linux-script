@@ -44,12 +44,12 @@ Examples:
     bash better_linux.sh -o
 ```
 
-下载`better_linux.sh`脚本，使用`bash better_linux.sh -o`来使用选项式安装，可通过 gui 来选择需要进行的配置。
+下载`better_linux.sh`脚本，使用`bash better_linux.sh`来安装，可通过 gui 来选择需要进行的配置。
 
 ### 一键脚本
 
 ```shell
-curl -sSL -o better_linux.sh https://raw.githubusercontent.com/Star-tears/better-linux-script/master/better_linux.sh && bash better_linux.sh -oc
+curl -sSL -o better_linux.sh https://raw.githubusercontent.com/Star-tears/better-linux-script/master/better_linux.sh && bash better_linux.sh -c
 ```
 
 ## 说明

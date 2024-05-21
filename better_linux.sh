@@ -6,27 +6,21 @@
 # Author:      Star-tears                      #
 # Mail:        star-tears@outlook.com          #
 # Blog:        https://blog.star-tears.cn      #
-# Version:     0.3.1                           #
+# Version:     0.3.2                           #
 # Attention:   linux init script               #
 ################################################
 
 # ===========================================================================
 # 初始化变量与环境配置
 # ===========================================================================
-OPTIONAL_FLAG=0
+OPTIONAL_FLAG=1
 FORCE_FLAG=0
 CLEAR_FLAG=0
 
-SOURCE_CHANGE=0
-APT_UPDATE=1
-BASIC_INSTALL=1
-INSTALL_ZSH=1
-INSTALL_ZSH_BASIC_PLUGIN=1
-INSTALL_NVM=0
-INSTALL_P10K=0
-OMZ_SET=0
-INSTALL_1PANEL=0
-SET_SWAP=0
+declare -A bind_map
+declare -A options_map
+declare -a orderList
+
 
 # script dir and name
 script_dir=$( cd "$( dirname "$0"  )" && pwd )
@@ -61,16 +55,9 @@ log(){
 }
 
 log_all_local_env(){
-    log "OPTIONAL_FLAG=$OPTIONAL_FLAG"
-    log "FORCE_FLAG=$FORCE_FLAG"
-    log "CLEAR_FLAG=$CLEAR_FLAG"
-    log "INSTALL_ZSH=$INSTALL_ZSH"
-    log "INSTALL_ZSH_BASIC_PLUGIN=$INSTALL_ZSH_BASIC_PLUGIN"
-    log "INSTALL_NVM=$INSTALL_NVM"
-    log "INSTALL_P10K=$INSTALL_P10K"
-    log "OMZ_SET=$OMZ_SET"
-    log "INSTALL_1PANEL=$INSTALL_1PANEL"
-    log "SET_SWAP=$SET_SWAP"
+    for key in "${orderList[@]}"; do
+        echo "Key: $key, Value: ${bind_map[$key]}, Bool: ${options_map[${bind_map[$key]}]}"
+    done
 }
 
 append_if_not_exists() {
@@ -85,6 +72,14 @@ append_if_not_exists() {
     else
         log_info "内容 '$content_to_append' 已存在于文件 '$file_path' 中，无需追加。"
     fi
+}
+
+add_to_list_ordered() {
+    local key="$1"
+    local value="$2"
+    bind_map["$key"]="$value"
+    options_map["$value"]=0
+    orderList+=("$key")  # 记录插入顺序
 }
 
 
@@ -131,22 +126,9 @@ log "   __       __  __            __   _               "
 log "  / /  ___ / /_/ /____ ____  / /  (_)__  __ ____ __"
 log " / _ \/ -_) __/ __/ -_) __/ / /__/ / _ \/ // /\ \ /"
 log "/_.__/\__/\__/\__/\__/_/   /____/_/_//_/\_,_//_\_\ "
-log "                 author: Star-tears version: 0.3.1 "
+log "                 author: Star-tears version: 0.3.2 "
 log "                  blog: https://blog.star-tears.cn "
 log "---------------------------------------------------"
-}
-
-optional_init(){
-    SOURCE_CHANGE=0
-    APT_UPDATE=0
-    BASIC_INSTALL=0
-    INSTALL_ZSH=0
-    INSTALL_ZSH_BASIC_PLUGIN=0
-    INSTALL_NVM=0
-    INSTALL_P10K=0
-    OMZ_SET=0
-    INSTALL_1PANEL=0
-    SET_SWAP=0
 }
 
 optional_dialog(){   
@@ -170,42 +152,7 @@ else
     log_success "Your select installs are:" $seleceted
     for key in $seleceted
     do
-        case "${key:1:-1}" in
-            source)
-                SOURCE_CHANGE=1
-                ;;
-            apt)
-                APT_UPDATE=1
-                ;;
-            basic)
-                BASIC_INSTALL=1
-                ;;
-            zsh)
-                INSTALL_ZSH=1
-                ;;
-            zsh-basic-plugin)
-                INSTALL_ZSH_BASIC_PLUGIN=1
-                ;;
-            nvm)
-                INSTALL_NVM=1
-                ;;
-            p10k)
-                INSTALL_P10K=1
-                ;;
-            omz)
-                OMZ_SET=1
-                ;;
-            1panel)
-                INSTALL_1PANEL=1
-                ;;
-            swap)
-                SET_SWAP=1
-                ;;
-            *)
-                log_error "error: Unknown select."
-                exit 1
-                ;;
-        esac
+        options_map["${bind_map["${key:1:-1}"]}"]=1
     done
 fi
 }
@@ -355,10 +302,22 @@ pre_handler(){
     cd .better_linux
 }
 
+init_handler(){
+    add_to_list_ordered "source" "source_change"
+    add_to_list_ordered "apt" "apt_update"
+    add_to_list_ordered "basic" "basic_install"
+    add_to_list_ordered "zsh" "zsh_install"
+    add_to_list_ordered "zsh-basic-plugin" "zsh_basic_plugin_install"
+    add_to_list_ordered "nvm" "nvm_install"
+    add_to_list_ordered "p10k" "p10k_install"
+    add_to_list_ordered "omz" "omz_set"
+    add_to_list_ordered "1panel" "1panel_install"
+    add_to_list_ordered "swap" "swap_set"
+}
+
 optional_handler(){
     if [ $OPTIONAL_FLAG -eq 1 ]
     then
-        optional_init
         log_purple "Now is optinal install:"
         optional_dialog
         log_purple "selecet finshied."
@@ -366,36 +325,11 @@ optional_handler(){
 }
 
 install_handler(){
-    if [[ $SOURCE_CHANGE -eq 1 ]]; then
-        source_change
-    fi
-    if [ $APT_UPDATE -eq 1 ]; then
-        apt_update
-    fi
-    if [[ $BASIC_INSTALL -eq 1 ]]; then
-        basic_install
-    fi
-    if [ $INSTALL_ZSH -eq 1 ]; then
-        zsh_install
-    fi
-    if [ $INSTALL_ZSH_BASIC_PLUGIN -eq 1 ]; then
-        zsh_basic_plugin_install
-    fi
-    if [ $INSTALL_NVM -eq 1 ]; then
-        nvm_install
-    fi
-    if [ $INSTALL_P10K -eq 1 ]; then
-        p10k_install
-    fi
-    if [ $OMZ_SET -eq 1 ]; then
-        omz_set
-    fi
-    if [[ $INSTALL_1PANEL -eq 1 ]]; then
-        1panel_install
-    fi
-    if [[ $SET_SWAP -eq 1 ]]; then
-        swap_set
-    fi
+    for key in "${orderList[@]}"; do
+        if [[ ${options_map[${bind_map[$key]}]} -eq 1 ]]; then
+            eval "${bind_map[$key]}"
+        fi
+    done
 }
 
 end_handler(){
@@ -408,6 +342,7 @@ end_handler(){
 main() {
     getopts_handler "$@"
     pre_handler
+    init_handler
     optional_handler
     install_handler
     end_handler
