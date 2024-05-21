@@ -21,10 +21,11 @@
 2. 安装 curl、wget、vim 等
 3. 安装 zsh
 4. 安装 zsh 基础实用插件(zsh-autosuggestions, zsh-syntax-highlighting, zsh-autocomplete)
-5. 安装 Powerlevel10k（高性能可定制主题）
-6. 配置 oh-my-zsh（主题默认设置为 bira）
-7. 安装开源管理面板 1panel（附带安装 docker、docker-compose）
-8. 设置 SWAP
+5. 安装 nvm（Node Version Manager）
+6. 安装 Powerlevel10k（高性能可定制主题）
+7. 配置 oh-my-zsh（主题默认设置为 bira）
+8. 安装开源管理面板 1panel（附带安装 docker、docker-compose）
+9. 设置 SWAP
 
 ## 使用方法
 
@@ -53,4 +54,4 @@ curl -sSL -o better_linux.sh https://raw.githubusercontent.com/Star-tears/better
 
 ## 说明
 
-本项目是因为本人经常折腾新系统镜像，每次从头配置 zsh、p10k 或 omz、swap、服务器面板等太费时间，因此写了一个脚本来自动化系统个性化过程，由于是方便自己使用，所以安装过程可能有个人偏好设置。
+本项目是因为本人经常折腾新系统镜像，每次从头配置 zsh、nvm、p10k 或 omz、swap、服务器面板等太费时间，因此写了一个脚本来自动化系统个性化过程，由于是方便自己使用，所以安装过程可能有个人偏好设置。

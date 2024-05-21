@@ -2,14 +2,17 @@
 # set -x # 调试
 
 ################ Version Info ##################
-# Create Date: 2024-05-20                      #
+# Create Date: 2024-05-21                      #
 # Author:      Star-tears                      #
 # Mail:        star-tears@outlook.com          #
 # Blog:        https://blog.star-tears.cn      #
-# Version:     0.2.0                           #
+# Version:     0.3.0                           #
 # Attention:   linux init script               #
 ################################################
 
+# ===========================================================================
+# 初始化变量与环境配置
+# ===========================================================================
 OPTIONAL_FLAG=0
 FORCE_FLAG=0
 CLEAR_FLAG=0
@@ -19,6 +22,7 @@ APT_UPDATE=1
 BASIC_INSTALL=1
 INSTALL_ZSH=1
 INSTALL_ZSH_BASIC_PLUGIN=1
+INSTALL_NVM=0
 INSTALL_P10K=0
 OMZ_SET=0
 INSTALL_1PANEL=0
@@ -29,6 +33,9 @@ script_dir=$( cd "$( dirname "$0"  )" && pwd )
 script_name=$(basename ${0})
 WORKSPACE=$script_dir/.better_linux
 
+# ===========================================================================
+# 工具函数
+# ===========================================================================
 log_info(){
     echo -e "\e[94m$@\e[0m"
 }
@@ -58,9 +65,28 @@ log_all_local_env(){
     log "FORCE_FLAG=$FORCE_FLAG"
     log "CLEAR_FLAG=$CLEAR_FLAG"
     log "INSTALL_ZSH=$INSTALL_ZSH"
+    log "INSTALL_ZSH_BASIC_PLUGIN=$INSTALL_ZSH_BASIC_PLUGIN"
+    log "INSTALL_NVM=$INSTALL_NVM"
+    log "INSTALL_P10K=$INSTALL_P10K"
+    log "OMZ_SET=$OMZ_SET"
     log "INSTALL_1PANEL=$INSTALL_1PANEL"
     log "SET_SWAP=$SET_SWAP"
 }
+
+append_if_not_exists() {
+    local content_to_append="$1"
+    local file_path="$2"
+
+    # 使用grep命令检查内容是否已存在于文件中
+    if ! grep -qF "$content_to_append" "$file_path"; then
+        # 如果内容不存在，则追加到文件末尾
+        echo "$content_to_append" >> "$file_path"
+        log_success "内容 '$content_to_append' 已成功追加到文件 '$file_path'。"
+    else
+        log_info "内容 '$content_to_append' 已存在于文件 '$file_path' 中，无需追加。"
+    fi
+}
+
 
 usage(){
 log_success "Usage: bash better_linux.sh [options]"
@@ -105,7 +131,7 @@ log "   __       __  __            __   _               "
 log "  / /  ___ / /_/ /____ ____  / /  (_)__  __ ____ __"
 log " / _ \/ -_) __/ __/ -_) __/ / /__/ / _ \/ // /\ \ /"
 log "/_.__/\__/\__/\__/\__/_/   /____/_/_//_/\_,_//_\_\ "
-log "                 author: Star-tears version: 0.2.0 "
+log "                 author: Star-tears version: 0.3.0 "
 log "                  blog: https://blog.star-tears.cn "
 log "---------------------------------------------------"
 }
@@ -116,6 +142,7 @@ optional_init(){
     BASIC_INSTALL=0
     INSTALL_ZSH=0
     INSTALL_ZSH_BASIC_PLUGIN=0
+    INSTALL_NVM=0
     INSTALL_P10K=0
     OMZ_SET=0
     INSTALL_1PANEL=0
@@ -130,6 +157,7 @@ local seleceted=$(whiptail --title "Checklist Dialog" --checklist \
 "basic" "basic install,such as curl, wget, git, vim" ON \
 "zsh" "install zsh" ON \
 "zsh-basic-plugin" "zsh-autosuggestions, zsh-syntax-highlighting, zsh-autocomplete" ON \
+"nvm" "Node Version Manager as a zsh-plugin" OFF \
 "p10k" "you can chooss p10k or oh-my-zsh" ON \
 "omz" "install oh-my-zsh, oh-my-zsh theme and plugin set" OFF \
 "1panel" "install 1panel which is open source panel" OFF \
@@ -157,6 +185,9 @@ else
                 ;;
             zsh-basic-plugin)
                 INSTALL_ZSH_BASIC_PLUGIN=1
+                ;;
+            nvm)
+                INSTALL_NVM=1
                 ;;
             p10k)
                 INSTALL_P10K=1
@@ -250,17 +281,25 @@ zsh_basic_plugin_install(){
     git clone --depth 1 -- https://github.com/zsh-users/zsh-autosuggestions ~/.zsh/zsh-autosuggestions
     git clone --depth 1 -- https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.zsh/zsh-syntax-highlighting
     git clone --depth 1 -- https://github.com/marlonrichert/zsh-autocomplete.git ~/.zsh/zsh-autocomplete
-    echo "source ${ZDOTDIR:-$HOME}/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh" >> ${ZDOTDIR:-$HOME}/.zshrc
-    echo "source ${ZDOTDIR:-$HOME}/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" >> ${ZDOTDIR:-$HOME}/.zshrc
-    echo "source ${ZDOTDIR:-$HOME}/.zsh/zsh-autocomplete/zsh-autocomplete.plugin.zsh" >> ${ZDOTDIR:-$HOME}/.zshrc
+    append_if_not_exists "source ${ZDOTDIR:-$HOME}/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh" ${ZDOTDIR:-$HOME}/.zshrc
+    append_if_not_exists "source ${ZDOTDIR:-$HOME}/.zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ${ZDOTDIR:-$HOME}/.zshrc
+    append_if_not_exists "source ${ZDOTDIR:-$HOME}/.zsh/zsh-autocomplete/zsh-autocomplete.plugin.zsh" ${ZDOTDIR:-$HOME}/.zshrc
     log_success "zsh_basic_plugin_install finished."
+    log_success "you can reload terminal or use \`source ~/.zshrc\` refresh zsh config."
+}
+
+nvm_install(){
+    log "nvm_install start..."
+    git clone --depth 1 -- https://github.com/lukechilds/zsh-nvm.git ~/.zsh/.zsh-nvm
+    append_if_not_exists "source ${ZDOTDIR:-$HOME}/.zsh/.zsh-nvm/zsh-nvm.plugin.zsh" ${ZDOTDIR:-$HOME}/.zshrc
+    log_success "nvm_install finished."
     log_success "you can reload terminal or use \`source ~/.zshrc\` refresh zsh config."
 }
 
 p10k_install(){
     log "p10k_install start..."
     git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
-    echo 'source ${ZDOTDIR:-$HOME}/powerlevel10k/powerlevel10k.zsh-theme' >> ${ZDOTDIR:-$HOME}/.zshrc
+    append_if_not_exists 'source ${ZDOTDIR:-$HOME}/powerlevel10k/powerlevel10k.zsh-theme' ${ZDOTDIR:-$HOME}/.zshrc
     log_success "p10k_install finished."
 }
 
@@ -344,6 +383,9 @@ install_handler(){
     fi
     if [ $INSTALL_ZSH_BASIC_PLUGIN -eq 1 ]; then
         zsh_basic_plugin_install
+    fi
+    if [ $INSTALL_NVM -eq 1 ]; then
+        nvm_install
     fi
     if [ $INSTALL_P10K -eq 1 ]; then
         p10k_install
